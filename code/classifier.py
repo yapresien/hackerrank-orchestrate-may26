@@ -1,0 +1,23 @@
+from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from langchain.schema import HumanMessage
+import json
+from config import MODEL_NAME
+from prompts import CLASSIFIER_PROMPT
+
+llm = ChatOpenAI(model=MODEL_NAME, temperature=0)
+
+def classify_ticket(ticket: str):
+    response = llm.invoke([
+        HumanMessage(content=CLASSIFIER_PROMPT.format(ticket=ticket))
+    ])
+
+    try:
+        parsed = json.loads(response.content)
+    except:
+        parsed = {
+            "request_type": "product_issue",
+            "product_area": "general",
+            "risk": "high"
+        }
+
+    return parsed
