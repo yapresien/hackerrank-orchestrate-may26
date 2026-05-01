@@ -21,21 +21,18 @@ def compute_confidence(answer, docs):
     except:
         return 0.0
 
-
 def decide_escalation(classification, docs, answer):
 
-    if classification["risk"] == "high":
-        return "escalated"
-
+    # No supporting documents → escalate
     if len(docs) == 0:
         return "escalated"
 
-    confidence = compute_confidence(answer, docs)
-
-    if confidence < 0.5:
-        return "escalated"
+    # confidence = compute_confidence(answer, docs)
+    # if confidence < 0.5:
+    #     return "escalated"
 
     if "cannot determine" in answer.lower():
         return "escalated"
 
+    # Otherwise reply
     return "replied"

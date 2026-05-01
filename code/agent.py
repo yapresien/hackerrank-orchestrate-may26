@@ -4,40 +4,40 @@ from retriever import Retriever
 from generator import generate_answer
 from decision import decide_escalation
 from config import DATA_PATH
+from postprocess import post_process
+from justifier import generate_justification
+from config import DATA_PATH
 
-retrievers = {
+RETRIEVERS = {
     "hackerrank": Retriever(f"{DATA_PATH}/hackerrank"),
     "claude": Retriever(f"{DATA_PATH}/claude"),
-    "visa": Retriever(f"{DATA_PATH}/visa")
+    "visa": Retriever(f"{DATA_PATH}/visa"),
 }
 
-
-def process_ticket(ticket):
-
+def process_ticket(ticket: str):
     classification = classify_ticket(ticket)
-    route = route_ticket(ticket)
+    product = route_ticket(ticket)
 
-    retriever = retrievers[route]
+    if product not in RETRIEVERS:
+        print(f"[WARN] Unknown product: {product}")
+        return None
 
+    retriever = RETRIEVERS[product]
     docs = retriever.retrieve(ticket)
 
-    answer, justification = generate_answer(ticket, docs)
-
+    answer, context = generate_answer(ticket, docs)
     status = decide_escalation(classification, docs, answer)
+    justification = generate_justification(answer, docs)
 
-    if status == "escalated":
-        return {
-            "status": "escalated",
-            "product_area": classification["product_area"],
-            "response": "This issue requires review by a human support agent.",
-            "justification": "Escalated due to low confidence or insufficient supporting evidence.",
-            "request_type": classification["request_type"]
-        }
-
-    return {
-        "status": "replied",
+    result = {
+        "status": status,
         "product_area": classification["product_area"],
         "response": answer,
         "justification": justification,
         "request_type": classification["request_type"]
     }
+
+    # ✅ POST-PROCESS HERE
+    result = post_process(result)
+
+    return result

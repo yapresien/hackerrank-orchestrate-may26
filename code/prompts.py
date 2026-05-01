@@ -1,17 +1,21 @@
 CLASSIFIER_PROMPT = """
 Classify the support ticket.
 
-Return STRICT JSON:
-{
+Return STRICT JSON ONLY (no explanation, no extra text):
+{{
   "request_type": "product_issue | feature_request | bug | invalid",
   "product_area": "...",
   "risk": "low | high"
-}
+}}
 
 Rules:
-- "bug" = system malfunction
-- "feature_request" = asking for new functionality
-- "invalid" = unclear / not actionable
+- bug = system malfunction (platform error, crash)
+- product_issue = payment problems, login issues, transaction failures
+- feature_request = asking for new functionality
+- invalid = unclear, spam, or not actionable
+- high risk = payment issues, account security, billing errors
+
+Use short, consistent labels for product_area (e.g., "payments", "login", "billing").
 
 Ticket:
 {ticket}
@@ -21,18 +25,19 @@ ROUTER_PROMPT = """
 Which product does this belong to?
 
 Options:
-- hackerrank (coding platform, submissions, tests)
-- claude (AI assistant usage, billing, prompts)
-- visa (payments, cards, transactions)
+- hackerrank
+- claude
+- visa
 
-Return ONLY one word.
+Return ONLY one word from the options above (lowercase, no explanation).
 
 Ticket:
 {ticket}
 """
 
 HYDE_PROMPT = """
-Write a detailed support answer that would correctly resolve this issue.
+Write a detailed, realistic support answer that would resolve this issue.
+Do not include policies not commonly found in support documentation.
 
 Ticket:
 {ticket}
@@ -49,18 +54,24 @@ Question:
 Documents:
 {docs}
 
-Return:
-- "good" if sufficient
-- "bad" if irrelevant or insufficient
+Return ONLY one word:
+- good (relevant and sufficient)
+- bad (irrelevant or insufficient)
 """
 
 GENERATION_PROMPT = """
 You are a support agent.
 
-STRICT RULES:
+RULES:
 - Use ONLY the provided context
-- If unsure → say you cannot determine
-- Do NOT invent policies
+- Briefly explain the likely cause
+- Provide clear next steps
+- Be concise and specific (max ~100 words)
+- Do NOT invent policies or include external links
+
+If the issue involves payments, mention authorization holds when relevant.
+
+Write the answer as a natural paragraph.
 
 Context:
 {context}
@@ -72,7 +83,7 @@ Answer:
 """
 
 JUSTIFICATION_PROMPT = """
-Explain briefly why this answer is correct using the context.
+Provide a concise justification (1 sentence) referencing the support documentation.
 
 Answer:
 {answer}
@@ -82,7 +93,7 @@ Context:
 """
 
 CONFIDENCE_PROMPT = """
-Rate confidence in this answer.
+Rate confidence in this answer based on the context.
 
 Answer:
 {answer}
@@ -90,5 +101,5 @@ Answer:
 Context:
 {context}
 
-Return a number between 0 and 1.
+Return ONLY a number between 0 and 1.
 """
