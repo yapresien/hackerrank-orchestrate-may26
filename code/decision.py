@@ -21,18 +21,19 @@ def compute_confidence(answer, docs):
     except:
         return 0.0
 
-def decide_escalation(classification, docs, answer):
+def decide_escalation(classification, docs, answer, product):
 
-    # No supporting documents → escalate
-    if len(docs) == 0:
+    # 🔥 RULE 1: Never escalate simple Visa/payment issues
+    if product == "visa":
+        return "replied"
+
+    # 🔥 RULE 2: escalate only if high risk AND no docs
+    if classification.get("risk") == "high" and not docs:
         return "escalated"
 
-    # confidence = compute_confidence(answer, docs)
-    # if confidence < 0.5:
-    #     return "escalated"
-
-    if "cannot determine" in answer.lower():
+    # 🔥 RULE 3: escalate if answer truly cannot be determined
+    if "cannot determine" in answer.lower() and not docs:
         return "escalated"
 
-    # Otherwise reply
+    # 🔥 RULE 4: otherwise always reply
     return "replied"

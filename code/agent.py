@@ -26,7 +26,7 @@ def process_ticket(ticket: str):
     docs = retriever.retrieve(ticket)
 
     answer, context = generate_answer(ticket, docs)
-    status = decide_escalation(classification, docs, answer)
+    status = decide_escalation(classification, docs, answer, product)
     justification = generate_justification(answer, docs)
 
     result = {

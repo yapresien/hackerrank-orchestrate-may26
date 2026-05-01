@@ -22,10 +22,18 @@ def post_process(result: dict) -> dict:
         "transactions": "payments",
         "card": "payments",
     }
-
+    
+    VALID_AREAS = [
+        "payments", "billing", "access", "login",
+        "hiring", "submission", "account"
+    ]
+   
     pa = result["product_area"].lower().strip()
     result["product_area"] = PRODUCT_AREA_MAP.get(pa, pa)
-      
+    
+    if result["product_area"] not in VALID_AREAS:
+        result["product_area"] = "account"
+        
     # Clean response spacing
     result["response"] = result["response"].strip()
     if result["response"] == "":

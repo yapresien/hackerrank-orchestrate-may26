@@ -9,13 +9,13 @@ Return STRICT JSON ONLY (no explanation, no extra text):
 }}
 
 Rules:
-- bug = system malfunction (platform error, crash)
-- product_issue = payment problems, login issues, transaction failures
-- feature_request = asking for new functionality
-- invalid = unclear, spam, or not actionable
-- high risk = payment issues, account security, billing errors
+- bug = system malfunction, crashes, platform errors
+- product_issue = payment problems, login issues, transaction failures, access problems, account issues
+- feature_request = asking for new functionality or improvements
+- invalid = unclear, spam, off-topic, or not actionable (e.g., personal requests for score changes)
+- high risk = payment issues, account security, billing errors, access revocations
 
-Use short, consistent labels for product_area (e.g., "payments", "login", "billing").
+Use short, consistent labels for product_area (e.g., "access", "login", "payments", "billing", "account").
 
 Ticket:
 {ticket}
@@ -65,11 +65,13 @@ You are a support agent.
 RULES:
 - Use ONLY the provided context
 - Briefly explain the likely cause
-- Provide clear next steps
+- Provide clear resolution steps
 - Be concise and specific (max ~100 words)
 - Do NOT invent policies or include external links
+- Do NOT ask the user for additional information
+- If the context is insufficient, say you cannot determine the answer
 
-If the issue involves payments, mention authorization holds when relevant.
+If the issue involves payments, mention authorization holds ONLY if clearly relevant.
 
 Write the answer as a natural paragraph.
 
@@ -83,7 +85,7 @@ Answer:
 """
 
 JUSTIFICATION_PROMPT = """
-Provide a concise justification (1 sentence) referencing the support documentation.
+Provide a concise justification (1 sentence) referencing support documentation and the type of issue.
 
 Answer:
 {answer}

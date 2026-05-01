@@ -20,4 +20,8 @@ def classify_ticket(ticket: str):
             "risk": "high"
         }
 
+    # Force override invalid if ticket is long enough
+    if parsed["request_type"] == "invalid" and len(ticket.strip()) > 15:
+        parsed["request_type"] = "product_issue"
+
     return parsed
