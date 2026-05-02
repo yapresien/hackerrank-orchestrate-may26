@@ -1,26 +1,48 @@
-from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from langchain_openai import ChatOpenAI
 from langchain.schema import HumanMessage
-from prompts import GENERATION_PROMPT, JUSTIFICATION_PROMPT
+from prompts import GENERATION_PROMPT
 from config import MODEL_NAME
 
-llm = ChatOpenAI(model=MODEL_NAME, temperature=0)
+
+# -----------------------------
+# 🔹 Single LLM instance
+# -----------------------------
+llm = ChatOpenAI(
+    model=MODEL_NAME,
+    temperature=0
+)
 
 
+# -----------------------------
+# 🔹 Answer Generation
+# -----------------------------
 def generate_answer(ticket, docs):
-    context = "\n\n".join([d.page_content[:500] for d in docs])
+    if not docs:
+        return "There is not enough context to provide a precise answer. Please contact support for further assistance."
 
-    answer = llm.invoke([
-        HumanMessage(content=GENERATION_PROMPT.format(
-            context=context,
-            question=ticket
-        ))
-    ]).content
+    context = "\n\n".join([
+        d.page_content.replace("[](", "").replace(")", "")
+        for d in docs[:4]
+    ])
 
-    justification = llm.invoke([
-        HumanMessage(content=JUSTIFICATION_PROMPT.format(
-            answer=answer,
-            context=context
-        ))
-    ]).content
+    prompt = GENERATION_PROMPT.format(
+        context=context,
+        question=ticket
+    )
 
-    return answer, justification
+    response = llm.invoke([
+        HumanMessage(content=prompt)
+    ])
+
+    return response.content.strip()
+
+
+# -----------------------------
+# 🔹 Justification (deterministic)
+# -----------------------------
+def generate_justification(answer, docs):
+    if not docs:
+        return "No relevant context available."
+
+    snippet = docs[0].page_content.strip().replace("\n", " ")[:120]
+    return f"Answer based on retrieved documentation: {snippet}"

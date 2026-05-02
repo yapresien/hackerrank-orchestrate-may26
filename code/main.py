@@ -1,10 +1,11 @@
 import pandas as pd
 from agent import process_ticket
 from config import TICKETS_PATH, OUTPUT_PATH
+from validator import print_validation_report
 
 def main():
     
-    df = pd.read_csv(TICKETS_PATH)
+    df = pd.read_csv(TICKETS_PATH)#.head(1)  # Limit to first 100 tickets for testing
 
     outputs = []
 
@@ -19,12 +20,18 @@ def main():
             "request_type": result["request_type"]
         })
 
+    # =======================================
+    # Validate before writing to CSV
+    # =======================================
+    is_valid = print_validation_report(outputs, title="🔍 Output Validation Report")
+
     out_df = pd.DataFrame(outputs)
     out_df.to_csv(OUTPUT_PATH, index=False)
 
-    out_df.to_csv("support_tickets/test_output.csv", index=False)
-
-    print("✅ Saved to support_tickets/test_output.csv")
+    if is_valid:
+        print("✅ All validations passed. Saved to", OUTPUT_PATH)
+    else:
+        print("⚠️  Some validations failed. Review errors above. Saved to", OUTPUT_PATH)
 
 if __name__ == "__main__":
     main()

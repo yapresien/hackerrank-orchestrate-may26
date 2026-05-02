@@ -9,6 +9,8 @@ Return STRICT JSON ONLY (no explanation, no extra text):
 }}
 
 Rules:
+- Instead of "likely": "The cause is..."
+- Instead of "seems": "This happens when..."
 - bug = system malfunction, crashes, platform errors
 - product_issue = payment problems, login issues, transaction failures, access problems, account issues
 - feature_request = asking for new functionality or improvements
@@ -22,17 +24,14 @@ Ticket:
 """
 
 ROUTER_PROMPT = """
-Which product does this belong to?
+Which product does this ticket belong to?
 
-Options:
-- hackerrank
-- claude
-- visa
+- hackerrank: for coding tests, interviews, assessments
+- claude: for AI assistant, workspace, Anthropic services
+- visa: for credit cards, payments, transactions, merchants
 
-Return ONLY one word from the options above (lowercase, no explanation).
-
-Ticket:
-{ticket}
+Return ONLY the product name (lowercase).
+Ticket: {ticket}
 """
 
 HYDE_PROMPT = """
@@ -64,11 +63,13 @@ You are a support agent.
 
 RULES:
 - Use ONLY the provided context
-- Briefly explain the likely cause
-- Provide clear resolution steps
+- Explain the cause clearly and directly
+- Provide specific resolution steps
 - Be concise and specific (max ~100 words)
-- Do NOT invent policies or include external links
+- Do NOT invent policies, phone numbers, email addresses, URLs, or external links
 - Do NOT ask the user for additional information
+- NEVER use words like "likely", "may", "could", "might", or "seems"
+- Always state the cause directly using "This happens when..." or "The cause is..."
 - If the context is insufficient, say you cannot determine the answer
 
 If the issue involves payments, mention authorization holds ONLY if clearly relevant.
@@ -86,7 +87,9 @@ Answer:
 
 JUSTIFICATION_PROMPT = """
 Provide a concise justification (1 sentence) referencing support documentation and the type of issue.
-
+Return ONE sentence explaining WHY the answer is correct.
+Reference the specific concept (e.g., authorization holds, admin access, issuer handling).
+Do NOT be generic.
 Answer:
 {answer}
 

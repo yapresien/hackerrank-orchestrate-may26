@@ -84,9 +84,9 @@ class Retriever:
         else:
             docs = self.multi_query(query)
 
-        # CRAG validation
-        if not self.validate(query, docs):
-            docs = self.hyde(query)
+        # # CRAG validation
+        # if not self.validate(query, docs):
+        #     docs = self.hyde(query)
 
         return self._dedupe(docs)
 
