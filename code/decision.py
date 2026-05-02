@@ -25,8 +25,7 @@ def decide_escalation(classification, docs, answer, product):
     risk = classification.get("risk", "low")
 
     if risk == "high" and product != "visa":
-        # only escalate if answer is weak
-        if "cannot determine" in answer.lower():
+        if not docs:
             return "escalated"
 
     # Visa → always reply (as per rules)

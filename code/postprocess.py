@@ -61,6 +61,9 @@ def clean_response(text):
     response = re.sub(r"\+?\d[\d\-\s]{7,}", "", response)
     response = re.sub(r"\b(call|contact|email)\b[^\.]*\+?\d[\d\-\s]{4,}", "", response, flags=re.IGNORECASE)
     response = re.sub(r"\s+", " ", response).strip()
+    response = re.sub(r"\bis is\b", "is", response)
+    response = re.sub(r"\bthat is blocking\b", "that are blocking", response)
+    response = re.sub(r"\byou is\b", "you are", response)
 
     return response
 
